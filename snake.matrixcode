@@ -1,0 +1,145 @@
+
+ var snake_x[];
+ var snake_y[];
+ var direction = -1;
+ var loose_state = false;
+ var food_x = 0;
+ var food_y = 0;
+
+function reset() {
+    list::clear(snake_x);
+    list::clear(snake_y);
+    list::push_back(snake_x, 1);
+    list::push_back(snake_x, 2);
+    list::push_back(snake_x, 3);
+    list::push_back(snake_y, 5);
+    list::push_back(snake_y, 5);
+    list::push_back(snake_y, 5);
+    food_x = random(0,11);
+    food_y = random(0,11);
+    set_controls(0b00011011);
+    loose_state = false;
+    direction = -1;
+}
+
+// Wird einmal beim Start deines Spiels aufgerufen
+function init() {
+    set_tps(2);
+    reset();
+}
+
+// Wird während deines Spiels mit den Ticks pro Sekunde (tps) aufgerufen
+function game_loop() {
+    if(is_animation_running() || loose_state) {
+        return;
+    }
+
+    if(direction == 0) {
+        list::push_back(snake_x, snake_x[list::count(snake_x) - 1]);
+        list::push_back(snake_y, snake_y[list::count(snake_y) - 1]+1);
+    }
+
+    if(direction == 1) {
+        list::push_back(snake_x, snake_x[list::count(snake_x) - 1]+1);
+        list::push_back(snake_y, snake_y[list::count(snake_y) - 1]);
+    }
+
+    if(direction == 2) {
+        list::push_back(snake_x, snake_x[list::count(snake_x) - 1]);
+        list::push_back(snake_y, snake_y[list::count(snake_y) - 1] - 1);
+    }
+
+    if(direction == 3) {
+        list::push_back(snake_x, snake_x[list::count(snake_x) - 1] - 1);
+        list::push_back(snake_y, snake_y[list::count(snake_y) - 1]);
+    }
+
+    var head_x = snake_x[list::count(snake_x) - 1];
+    var head_y = snake_y[list::count(snake_y) - 1];
+      
+
+    // Check for collision with the body
+    for (var i = 0; i < list::count(snake_x) - 1; i++) {
+        if (snake_x[i] == head_x && snake_y[i] == head_y) {
+            loose_state = true;
+            set_controls(0b00100000);  // Disable controls when loose
+            run_animation_splash(head_x, head_y, 0xFF0000, true, 1000, 1000);  // Show crash animation
+            return;
+        }
+    }
+
+     // Check if snake is out of bounds
+    if (head_x < 0 || head_x > 11 || head_y < 0 || head_y > 11) {
+        loose_state = true;
+        set_controls(0b00100000);  // Disable controls when loose
+        run_animation_splash(head_x, head_y, 0xFF0000, true, 1000, 1000);  // Show crash animation
+        return;
+    }
+
+    var food_collision = (head_x == food_x) && (head_y == food_y);
+
+
+        if (direction != -1 && !food_collision)
+        {
+            list::pop(snake_x);
+            list::pop(snake_y);
+        }
+        
+        if (food_collision)
+        {
+            food_x = random(0, 11);
+            food_y = random(0, 11);
+        }
+
+}
+
+// Wird 30 mal pro Sekunde aufgerufen, um dein Spiel zu zeichnen
+function draw() {
+    if(is_animation_running()) {
+        return;
+    }
+
+    clear();
+
+    if(loose_state) {
+        number(1, 4, list::count(snake_x) - 1, 0xFF0000);
+        return;
+    }
+
+    for(var i=0;i<list::count(snake_x);i++) {
+        set(snake_x[i], snake_y[i], 0x00FF00);
+    }
+
+    set(food_x, food_y, 0xFF0000);
+}
+
+// Wird beim Beenden deines Spiels aufgerufen
+function clean_up() {
+
+}
+
+// Wird bei einer Nutzereingabe aufgerufen
+function on_event(event) {
+
+    if(event == 0) { //UP
+        direction = 0;
+    }
+
+     if(event == 1) { //DOWN
+        direction = 2;
+    }
+
+    if(event == 2) { //LEFT
+        direction = 3;
+    }
+
+    if(event == 3) { //RIGHT
+        direction = 1;
+    }
+
+    if(event == 5) {
+        reset();
+    }
+
+}
+

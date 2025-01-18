@@ -1,0 +1,84 @@
+var rot = 0xff0000;
+var gruen = 0x00ff00;
+var gelb = 0xf0f000;
+var farbe = rot;
+var abcd = "AB";
+
+
+// Wird einmal beim Start deines Spiels aufgerufen
+// Links für AB, Rechts für CD, a für rot, b für grün, c für gelb
+function init() {
+    set_controls(0b11101010); 
+}
+
+// Wird während deines Spiels mit den Ticks pro Sekunde (tps) aufgerufen
+function game_loop() {
+} 
+
+// Wird 30 mal pro Sekunde aufgerufen, um dein Spiel zu zeichnen
+function draw() {
+    clear();
+    if (abcd == "AB")
+        drawAB(farbe);
+    else
+        drawCD(farbe);
+}
+
+// Wird beim Beenden deines Spiels aufgerufen
+function clean_up() {
+
+}
+
+// Wird bei einer Nutzereingabe aufgerufen
+function on_event(event) {
+ 
+    if (event == 2)
+    {
+        abcd = "AB";
+    }
+    if (event == 3)
+    {
+       
+        abcd = "CD";
+    }
+
+    if (event == 5)
+        farbe = rot;
+    if (event == 6)
+        farbe = gruen;
+    if (event == 7)
+        farbe = gelb;
+
+}
+
+function drawAB(farbe)
+{
+    line(0, 0, 0, 9, farbe);
+    line(4, 0, 4, 9, farbe);
+    line(1, 10, 3, 10, farbe);
+    line(1, 5, 3, 5, farbe);
+
+    line(7, 0, 7, 10, farbe); 
+    line(11, 1, 11, 4, farbe);   
+    line(11, 6, 11, 9, farbe);
+    line(8, 10, 10, 10, farbe);
+    line(8, 5, 10, 5, farbe);
+    line(8, 0, 10, 0, farbe);
+
+}
+
+function drawCD(farbe)
+{
+    line(0, 1, 0, 9, farbe);
+    line(4, 1, 4, 2, farbe);
+    line(4, 8, 4, 9, farbe);
+    line(1, 10, 3, 10, farbe);
+    line(1, 0, 3, 0, farbe);
+
+    line(7, 0, 7, 10, farbe); 
+    line(11, 1, 11, 9, farbe);   
+    line(8, 10, 10, 10, farbe);
+   line(8, 0, 10, 0, farbe);
+
+}
+
