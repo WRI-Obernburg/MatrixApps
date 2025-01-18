@@ -1,0 +1,263 @@
+var rocket_x;
+var rocket_y;
+var amo_y;
+var amo_x;
+var amo_Laser = true; 
+var laser_Speed = 2;
+var alien_y;
+var alien_x_pos[4];
+var aliens[] = {true, true, true, true};
+var move_timer = 20;;
+var move_direction = true; 
+var special_alien_x = 15;
+var special_alien_y = 11;
+var special_timer = 10;
+var special_Spawn = 400;
+var score;
+var isAllDead = true;
+
+function init() 
+{
+set_tps(30);
+set_controls(0b00001110);
+alien_y = 11;
+alien_x_pos[0] = 2;
+alien_x_pos[1] = 4;
+alien_x_pos[2] = 6;
+alien_x_pos[3] = 8;
+rocket_x = 5;
+rocket_y = 0;
+special_alien_x = 15;
+special_alien_y = 11;
+special_Spawn = 400;
+score = 0;
+}
+
+
+
+
+function game_loop() 
+{
+   if(is_animation_running()) return;
+   Amo_Logic();
+   Alien_Logic();
+   Destroy_Enemy();
+   GameEnd();
+   Alien_special();
+}
+
+function draw() 
+{
+    if(is_animation_running()) return;
+   clear();
+   SetAll();
+}
+
+
+function on_event(event) {
+
+    if(event == 2) { 
+        if(rocket_x > 0) {
+            rocket_x--;
+        }
+    }
+
+    if(event == 3) { 
+        if(rocket_x < 11) {
+            rocket_x++;
+        }
+    }
+
+   if(event == 4) 
+  {
+    amo_Laser = false;
+  }
+
+}
+
+function reset() 
+{
+aliens = {true, true, true, true};
+alien_y = 11;
+alien_x_pos[0] = 2;
+alien_x_pos[1] = 4;
+alien_x_pos[2] = 6;
+alien_x_pos[3] = 8;
+rocket_x = 5;
+rocket_y = 0;
+special_alien_x = 15;
+special_alien_y = 11;
+special_Spawn = 400;
+score = 0;
+}
+
+function Move_Right()
+ {
+   for(var i = 0;i < array::count(alien_x_pos);i++)
+   {
+    alien_x_pos[i] ++;
+   }
+ }
+
+function Move_Left()
+ {
+   for(var i = 0;i < array::count(alien_x_pos);i++)
+   {
+    alien_x_pos[i] --;
+   }
+ }
+
+ function Row_Down()
+ {
+  alien_y --;
+ }
+
+function Amo_Logic()
+{
+laser_Speed --;
+   if(laser_Speed <= 0)
+   {
+   laser_Speed = 2;
+  if(amo_Laser == false)
+   {
+   if(amo_y < 20 )
+   {
+      amo_y ++;
+   }
+   }
+   }
+    if (amo_Laser == true)
+  {
+   amo_x = rocket_x;
+  }
+   if(amo_y >= 20 )
+   {
+      amo_y = rocket_y;
+      amo_Laser = true;
+   }
+}
+
+
+function Alien_Logic()
+{
+move_timer--;
+ if(move_timer <= 0) {
+    move_timer = 30;
+     if(move_direction == true)
+     {
+      Move_Right();
+     }
+ else
+     {
+      Move_Left();
+     }
+
+    for(var i = 0;i < array::count(alien_x_pos);i++)
+{
+    if(alien_x_pos[i] > 11 || alien_x_pos[i] < 0)
+ {
+   if(aliens[i] == true)
+   {
+    Row_Down();
+    move_direction = !move_direction;
+    if(move_direction == true)
+    { 
+      Move_Right();
+    }
+    else if(move_direction == false)
+    {
+      Move_Left();
+    }
+   }
+ }
+}
+}
+}
+
+function SetAll()
+{
+  
+  
+  set(special_alien_x, special_alien_y,0xCC6CE7);
+   set(rocket_x, rocket_y, 0xD20103);
+   set(rocket_x+1, rocket_y, 0xD20103);
+   set(rocket_x, rocket_y+1, 0xD20103);
+   set(rocket_x-1, rocket_y, 0xD20103);
+   set(amo_x, amo_y, 0x060270);
+   for(var i = 0;i < array::count(aliens);i++)
+   {
+      if(aliens[i] == true)
+      {
+         set(alien_x_pos[i],alien_y,0x00FF00);
+      }
+   }
+}
+
+function Destroy_Enemy()
+{
+   for(var i = 0;i < array::count(aliens);i++)
+   {
+      if(amo_x == alien_x_pos[i] & amo_y == alien_y)
+   {
+     aliens[i] = false;
+     score += 10;
+     set_status(str::format("Points: %d", score));
+   }
+   }
+
+   if(amo_x == special_alien_x & amo_y == special_alien_y)
+   {
+     score += 100;
+     set_status(str::format("Points: %d", score));
+   }
+   }
+
+
+function GameEnd()
+{
+    for(var i = 0;i < array::count(aliens);i++)
+{
+    if(aliens[i] == true) {
+        isAllDead = false;
+    }
+
+}
+
+if(isAllDead)
+ {  
+    run_animation_splash(rocket_x, rocket_y, 0xBFD641,true,1000,5000);
+    reset();
+ }
+
+
+if(alien_y <= 5 )
+{
+   run_animation_splash(rocket_x, rocket_y, 0xE4080A,true,1000,5000);
+    reset();
+}
+}
+
+function Alien_special()
+{
+special_timer --;
+if(special_timer <= 0 && alien_y < 11)
+{
+special_timer = 10;
+if(special_alien_x >= 0)
+{
+special_alien_x--;
+}
+}
+special_Spawn--;
+if(special_Spawn <= 0)
+{
+ special_alien_x = 15;
+ special_alien_y = 11;
+ special_Spawn = 250;
+}
+}
+
+
+
+
+
