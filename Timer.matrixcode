@@ -1,0 +1,150 @@
+var tenthsecound = 0;
+var second = 0;
+var minute = 0;
+var lineindex = 0;
+
+var downline = -1;
+var rightline = -1;
+var upline = -1;
+var leftline = -1;
+
+var running = false;
+var blinck = false;
+
+// Wird einmal beim Start deines Spiels aufgerufen
+function init() {
+set_controls(0b0010101);
+set_tps(1);
+
+}
+
+// Wird während deines Spiels mit den Ticks pro Sekunde (tps) aufgerufen
+function game_loop() {
+    if(!running) return;
+
+    if(minute == 45) {
+        blinck = !blinck;
+    }
+
+    if(minute == 45) return;
+
+    set_status(rightline);
+    if(lineindex == 1) {
+        downline = 12 - minute;
+        }
+    if (lineindex == 2){
+        leftline = minute - 12;
+        }
+    if(lineindex == 3){
+        upline =  minute - 23;
+        }
+    if(lineindex == 4){
+        rightline = 12 - (minute - 33) ;
+        }
+    
+    if(second < 9){
+     second++;  
+    }else{
+        second = 0;
+        tenthsecound++;
+        if(tenthsecound==6) {
+            minute++;
+            tenthsecound = 0;
+            if(minute <= 11) {
+                lineindex = 1;
+            }
+            if(minute >= 12 && minute < 23){
+                lineindex = 2;
+            }
+            if(minute >= 23 && minute < 34){
+                lineindex = 3;
+            }
+            if(minute >= 34 && minute < 45){
+                lineindex = 4;
+            }
+        }
+    }
+}
+
+// Wird 30 mal pro Sekunde aufgerufen, um dein Spiel zu zeichnen
+function draw() {
+    clear();
+    fill(0xfcfdff);
+    number(2,4,tenthsecound,0x173dfc); //links red
+    number(7,4,second,0x173dfc); //rechts red
+    line(11,0,1,0,0xff0000); //unten red
+    line(0,0,0,10,0xff0000); //links red
+    line(0,11,10,11,0xff0000); //oben red
+    line(11,11,11,1,0xff0000); //rechts red
+
+//minute line green
+    if(downline >= 0){
+        line(11,0,downline,0,0x24ff5e);
+    }
+    
+    if(leftline >= 0){
+        line(0,0,0,leftline,0x24ff5e);
+    }
+
+    if(upline >= 0){
+        line(0,11,upline,11,0x24ff5e);
+    }
+    
+    if(rightline >=0){
+        line(11,11,11,rightline,0x24ff5e);
+    }
+
+if (minute == 45) {
+    if (blinck == true) {
+        line(11,0,1,0,0xff0000); //unten red
+        line(0,0,0,10,0xff0000); //links red
+        line(0,11,10,11,0xff0000); //oben red
+        line(11,11,11,1,0xff0000); //rechts red
+    }
+
+    if (blinck == false) {
+        line(11,0,1,0,0x24ff5e); //unten green
+        line(0,0,0,10,0x24ff5e); //links green
+        line(0,11,10,11,0x24ff5e); //oben green
+        line(11,11,11,1,0x24ff5e); //rechts green
+    }
+    
+}
+}
+
+
+// Wird beim Beenden deines Spiels aufgerufen
+function clean_up() {
+    minute = 0;
+    downline = -1;
+    rightline = -1;
+    upline = -1;
+    leftline = -1;
+    lineindex = 0;
+}
+
+// Wird bei einer Nutzereingabe aufgerufen
+function on_event(event) {
+
+    if(event == 0){
+        running = true;
+    }
+
+    if(event == 1) {
+        running = false;
+    }
+
+    if (event == 4) {
+        tenthsecound = 0;
+        second = 0;
+        minute = 0;
+        lineindex = 0;
+
+        downline = -1;
+        rightline = -1;
+        upline = -1;
+        leftline = -1;
+    }
+    
+
+}
